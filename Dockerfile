@@ -1,4 +1,4 @@
-FROM alpine AS base
+FROM alpine:3.7 AS base
 WORKDIR /app
 
 FROM base AS dependencies
@@ -36,7 +36,7 @@ RUN pip install --no-cache-dir wheel && \
     zip -r ../${pkg} . 2>/dev/null && cd .. && rm -rf minify
 
 
-FROM alpine as release
+FROM alpine:3.7 as release
 WORKDIR /app
 COPY --from=build /app/ ./
 #NOTE: yaml-dev may be needed for reading config files; this wasn't tested.
