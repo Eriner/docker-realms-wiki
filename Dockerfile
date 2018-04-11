@@ -2,7 +2,7 @@ FROM alpine AS base
 WORKDIR /app
 
 FROM base AS dependencies
-RUN apk add --update --no-cache --virtual .build \
+RUN apk add --update --no-cache \
     libsasl \
     libressl2.6-libssl \
     libffi-dev \
@@ -15,11 +15,25 @@ RUN apk add --update --no-cache --virtual .build \
     python-dev \
     py-pip \
     py-cffi \
-    openldap-dev
+    openldap-dev \
+    zip \
+    unzip \
+    nodejs-npm
 
 FROM dependencies AS build
 RUN pip install --no-cache-dir wheel && \
-    pip wheel --wheel-dir=/app/wheels realms-wiki
+    pip wheel --wheel-dir=/app/wheels realms-wiki && \
+    npm install -g uglify-js && \
+    cd wheels && \
+    pkg=realms_wiki*.whl && pkg=$(echo ${pkg}) && \
+    echo ${pkg} && \
+    mkdir minify && cd minify && mv ../${pkg} . && \
+    unzip ${pkg} 2>/dev/null && rm ${pkg} && \
+    pwd && \
+    ls -lah . && \
+    echo 'minifying js. Be patient, this will take a while...' && \
+    find -name '*.js' -type f -exec sh -c 'uglifyjs {} -o {}; echo minifying: {};' \; 2>/dev/null && \
+    zip -r ../${pkg} . 2>/dev/null && cd .. && rm -rf minify
 
 
 FROM alpine as release
