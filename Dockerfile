@@ -1,27 +1,24 @@
 FROM alpine
 
-RUN apk update && \
-  apk add \
-    python-dev \
-    openldap-dev \
+RUN apk add --update --no-cache --virtual .build \
     libsasl \
     libressl2.6-libssl \
-    yaml-dev \
     libffi \
+    yaml-dev \
     zlib-dev \
     libxslt-dev \
     libxml2-dev \
-    py-pip \
-    py-cffi \
     musl-dev \
     gcc \
     bash && \
-  rm -rf \
-    /var/cache/apk/*
+    apk add --no-cache \
+    python-dev \
+    py-pip \
+    py-cffi \
+    openldap-dev
 
-RUN pip install realms-wiki && \
-  rm -rf \
-    /root/.cache/pip
+RUN pip install --no-cache-dir realms-wiki && \
+    apk del .build
 
 RUN addgroup \
     -S -g 1000 \
@@ -35,11 +32,11 @@ RUN addgroup \
 
 USER wiki
 
-ENV WORKERS=3
-ENV GEVENT_RESOLVER=ares
-ENV REALMS_ENV=docker
-ENV REALMS_WIKI_PATH=/data/wiki/repo
-ENV REALMS_DB_URI='sqlite:////data/db/wiki.db'
+ENV WORKERS=3 \
+    GEVENT_RESOLVER=ares \
+    REALMS_ENV=docker \
+    REALMS_WIKI_PATH=/data/wiki/repo \
+    REALMS_DB_URI='sqlite:////data/db/wiki.db'
 
 VOLUME /data/config
 VOLUME /data/db
