@@ -26,11 +26,8 @@ RUN pip install --no-cache-dir wheel && \
     npm install -g uglify-js && \
     cd wheels && \
     pkg=realms_wiki*.whl && pkg=$(echo ${pkg}) && \
-    echo ${pkg} && \
     mkdir minify && cd minify && mv ../${pkg} . && \
     unzip ${pkg} 2>/dev/null && rm ${pkg} && \
-    pwd && \
-    ls -lah . && \
     echo 'minifying js. Be patient, this will take a while...' && \
     find -name '*.js' -type f -exec sh -c 'uglifyjs {} -o {}; echo minifying: {};' \; 2>/dev/null && \
     zip -r ../${pkg} . 2>/dev/null && cd .. && rm -rf minify
